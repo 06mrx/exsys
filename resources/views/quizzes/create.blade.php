@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('content')
@@ -40,6 +39,10 @@
             </div>
             <div>
                 <label for="questions" class="block text-gray-600 mb-2">Pilih Soal</label>
+                <div class="mb-2">
+                    <button type="button" id="select-all" class="secondary-button">Pilih Semua</button>
+                    <button type="button" id="deselect-all" class="secondary-button">Batal Pilih Semua</button>
+                </div>
                 @foreach ($questions as $question)
                     <div class="flex items-center mb-2">
                         <input type="checkbox" name="questions[]" value="{{ $question->id }}" id="question_{{ $question->id }}" class="neo-input">
@@ -52,4 +55,18 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.getElementById('select-all').addEventListener('click', function() {
+            document.querySelectorAll('input[name="questions[]"]').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        });
+
+        document.getElementById('deselect-all').addEventListener('click', function() {
+            document.querySelectorAll('input[name="questions[]"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        });
+    </script>
 @endsection

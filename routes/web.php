@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\DashboardController;
+
 
 
 Route::get('/', function () {
@@ -14,15 +16,8 @@ Route::get('/', function () {
 });
 
 
-Route::get('/dashboard', function () {
-    $user = auth()->user();
-    if($user->is_admin) {
-        return view('dashboard');
-    } else {
-        return view('student.dashboard');
-    }
-    
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
