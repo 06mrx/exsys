@@ -177,7 +177,7 @@ class QuizController extends Controller
         }
 
         $userAnswers = session()->get('quiz_answers_' . $quiz->id, []);
-        $endTime = Carbon::now('Asia/Makassar')->addMinutes($quiz->duration);
+        $endTime = Carbon::now('Asia/Makassar')->addMinutes(intval($quiz->duration));
 
         // Simpan waktu mulai di session
         session()->put('quiz_start_time_' . $quiz->id, $currentTime);

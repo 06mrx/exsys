@@ -63,7 +63,7 @@
                     <tbody>
                         @foreach ($recentActivities as $activity)
                             <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
-                                <td class="py-3 px-4">{{ $activity->title }}</td>
+                                <td class="py-3 px-4">{{ $activity->title ??  $activity->name }}</td>
                                 <td class="py-3 px-4">{{ $activity->type }}</td>
                                 <td class="py-3 px-4">{{ \Carbon\Carbon::parse($activity->created_at)->format('d M Y') }}</td>
                                 <td class="py-3 px-4">

@@ -180,7 +180,8 @@ class ExamController extends Controller
         }
 
         // Hitung waktu akhir berdasarkan durasi
-        $endTime = Carbon::now('Asia/Makassar')->addMinutes($exam->duration);
+        // dd(intval($exam->duration));
+        $endTime = Carbon::now('Asia/Makassar')->addMinutes(intval($exam->duration));
 
         return view('exams.start', compact('exam', 'questions', 'userAnswers', 'endTime'));
     }
