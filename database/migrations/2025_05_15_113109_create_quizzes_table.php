@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->integer('duration'); // Durasi dalam menit
             $table->boolean('is_active')->default(true);
+            $table->integer('institution_id'); // ID institusi, nullable jika tidak ada
+
             $table->timestamps();
         });
 

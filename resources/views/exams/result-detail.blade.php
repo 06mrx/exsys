@@ -21,10 +21,22 @@
                     </thead>
                     <tbody>
                         @foreach ($results as $index => $result)
+                            {{-- @dd($result->getOPtion()[0]->content) --}}
                             <tr class="border-t border-neo-light">
                                 <td class="p-3">{{ $index + 1 }}</td>
                                 <td class="p-3">{{ $result->question->content }}</td>
-                                <td class="p-3">{{ $result->option->content ?? 'Tidak dijawab' }}</td>
+                                <td class="p-3">
+                                    @forelse ($result->getOPtion() as $option)
+                                        <div class="mb-2">
+                                            <strong>{{ $option->content }}</strong>
+                                            {{-- @if ($option->image)
+                                                <img src="{{ asset('storage/' . $option->image) }}" alt="Gambar Soal" class="mt-2 max-h-32">
+                                            @endif --}}
+                                        </div>
+                                    @empty
+                                        <span class="text-gray-500">Tidak ada jawaban</span>
+                                    @endforelse
+                                </td>
                                 <td class="p-3">
                                     <span class="{{ $result->is_correct ? 'text-green-600' : 'text-red-600' }}">
                                         {{ $result->is_correct ? 'Ya' : 'Tidak' }}

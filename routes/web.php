@@ -36,6 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/exams/save-answer', [App\Http\Controllers\ExamController::class, 'saveAnswer']);
 
     Route::get('exams/{exam}/results/{user}', [ExamController::class, 'resultDetail'])->name('exams.result-detail')->middleware('admin');
+    Route::delete('exams/{exam}/results/{user}', [ExamController::class, 'reset'])->name('exams.reset')->middleware('admin');
+
     
     Route::get('quizzes/results', [QuizController::class, 'results'])->name('quizzes.results');
     Route::resource('quizzes', QuizController::class);

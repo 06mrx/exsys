@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('duration')->default(30); // Durasi dalam menit
             $table->boolean('shuffle_questions')->default(true); // Acak soal
             $table->boolean('shuffle_options')->default(true); // Acak opsi
+            $table->integer('institution_id'); // ID institusi, nullable jika tidak ada
             $table->softDeletes();
             $table->timestamps();
         });

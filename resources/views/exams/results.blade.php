@@ -64,6 +64,14 @@
                                 <td class="p-3">
                                     <a href="{{ route('exams.result-detail', ['exam' => $result['exam_id'], 'user' => $result['user_id']]) }}"
                                         class="secondary-button text-sm">Lihat Detail</a>
+                                        {{-- reset button --}}
+                                    <form action="{{ route('exams.reset', ['exam' => $result['exam_id'], 'user' => $result['user_id']]) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="primary-button text-red-600 hover:text-red-800 text-sm ml-2">
+                                            Reset Hasil
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach

@@ -48,41 +48,47 @@ class QuestionController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'content' => 'required|string',
-            'category' => 'nullable|string|max:255',
-            'institution_id' => 'nullable|exists:institutions,id',
-            'options' => 'required|array|min:4|max:4',
-            'is_quiz' => 'boolean',
-            'options.*.content' => 'required|string',
-            'correct_option' => 'required|in:0,1,2,3',
-            'image' => 'nullable|image|max:2048', // Validasi gambar (max 2MB)
-        ]);
+{
+    // dd($request->all());
+    // Validasi input
+    $request->validate([
+        'content' => 'required|string',
+        'question_type' => 'required|in:single,multiple',
+        'institution_id' => 'nullable|exists:institutions,id',
+        'options' => 'array|min:4',
+        'options.*.content' => 'string|nullable',
+        'correct_options' => 'required|array',
+        'is_quiz' => 'boolean',
+        'image' => 'nullable|image|max:2048',
+    ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('uploads/questions', 'public');
-        }
-
-        $question = Question::create([
-            'content' => $request->content,
-            'category' => $request->category,
-            'institution_id' => $request->institution_id,
-            'image_path' => $imagePath,
-            'is_quiz' => $request->is_quiz ?? false,
-        ]);
-
-        foreach ($request->options as $index => $option) {
-            Option::create([
-                'question_id' => $question->id,
-                'content' => $option['content'],
-                'is_correct' => $index == $request->correct_option,
-            ]);
-        }
-
-        return redirect()->route('questions.index')->with('success', 'Soal berhasil ditambahkan.');
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('uploads/questions', 'public');
     }
+
+    $question = Question::create([
+        'content' => $request->content,
+        'question_type' => $request->question_type,
+        'institution_id' => $request->institution_id,
+        'image_path' => $imagePath,
+        'is_quiz' => $request->is_quiz ?? false,
+    ]);
+
+    foreach ($request->options as $index => $option) {
+        // dd($option);
+        if (empty($option['content'])) {
+            continue; // Skip empty options
+        }
+        Option::create([
+            'question_id' => $question->id,
+            'content' => $option['content'],
+            'is_correct' => in_array($index, $request->correct_options),
+        ]);
+    }
+
+    return redirect()->route('questions.index')->with('success', 'Soal berhasil ditambahkan.');
+}
 
     public function edit(Question $question)
     {

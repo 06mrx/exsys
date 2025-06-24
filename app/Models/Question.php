@@ -9,7 +9,7 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'institution_id', 'category', 'image_path', 'is_quiz'];
+    protected $fillable = ['content', 'institution_id', 'category', 'image_path', 'is_quiz', 'question_type'];
 
     public function institution()
     {
@@ -34,6 +34,6 @@ class Question extends Model
     public function quizzes()
     {
         return $this->belongsToMany(Quiz::class, 'quiz_questions')
-                    ->withPivot('order');
+            ->withPivot('order');
     }
 }

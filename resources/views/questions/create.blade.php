@@ -14,18 +14,22 @@
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
-            {{-- <div class="mb-4">
-                <label for="category" class="block text-gray-600 mb-2">Kategori</label>
-                <input type="text" name="category" id="category" class="neo-input w-full" value="{{ old('category') }}"
-                    placeholder="Masukkan kategori (opsional)">
-                @error('category')
+            <div class="mb-4">
+                <label for="question_type" class="block text-gray-600 mb-2">Jenis Soal</label>
+                <select name="question_type" id="question_type" class="neo-input w-full" required>
+                    <option value="single" {{ old('question_type') === 'single' ? 'selected' : '' }}>Pilihan Tunggal
+                    </option>
+                    <option value="multiple" {{ old('question_type') === 'multiple' ? 'selected' : '' }}>Pilihan Ganda
+                    </option>
+                </select>
+                @error('question_type')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror
-            </div> --}}
+            </div>
             <div class="mb-4">
                 <label class="inline-flex items-center">
-                    <input type="checkbox" name="is_quiz" value="1"
-                        {{ old('is_quiz') ? 'checked' : '' }} class="neo-input">
+                    <input type="checkbox" name="is_quiz" value="1" {{ old('is_quiz') ? 'checked' : '' }}
+                        class="neo-input">
                     <span class="ml-2 text-gray-600">Soal untuk Quiz</span>
                 </label>
             </div>
@@ -53,14 +57,15 @@
             </div>
             <div class="mb-4">
                 <label class="block text-gray-600 mb-2">Opsi Jawaban</label>
-                @for ($i = 0; $i < 4; $i++)
+                @for ($i = 0; $i < 10; $i++)
                     <div class="flex items-center mb-2">
                         <input type="text" name="options[{{ $i }}][content]" class="neo-input w-full mr-2"
-                            value="{{ old('options.' . $i . '.content') }}"
-                            placeholder="Opsi {{ chr(65 + $i) }}" required>
+                            value="{{ old('options.' . $i . '.content') }}" placeholder="Opsi {{ chr(65 + $i) }}"
+                            >
                         <label class="flex items-center">
-                            <input type="radio" name="correct_option" value="{{ $i }}"
-                                {{ old('correct_option') == $i ? 'checked' : '' }} required>
+                            <input type="checkbox" name="correct_options[]" value="{{ $i }}"
+                                {{ in_array($i, old('correct_options', [])) ? 'checked' : '' }} class="neo-input"
+                                data-question-type="multiple">
                             <span class="ml-2 text-gray-600">Benar</span>
                         </label>
                     </div>
@@ -68,7 +73,7 @@
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 @endfor
-                @error('correct_option')
+                @error('correct_options')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>

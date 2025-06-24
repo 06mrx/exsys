@@ -181,8 +181,8 @@ class ExamController extends Controller
 
         // Hitung waktu akhir berdasarkan durasi
         // dd(intval($exam->duration));
-        $endTime = Carbon::now('Asia/Makassar')->addMinutes(intval($exam->duration));
-
+        $endTime = Carbon::now('Asia/Makassar')->addMinutes(intval($exam->duration))->timestamp * 1000;
+        // dd($endTime);
         return view('exams.start', compact('exam', 'questions', 'userAnswers', 'endTime'));
     }
 
@@ -202,30 +202,33 @@ class ExamController extends Controller
     public function submit(Request $request, Exam $exam)
     {
         $currentTime = Carbon::now('Asia/Makassar');
-        $request->validate([
-            'answers' => 'required|array',
-            'answers.*' => 'exists:options,id',
-        ]);
+        // $request->validate([
+        //     'answers' => 'required|array',
+        //     'answers.*' => 'array|min:1', // Memastikan setiap jawaban adalah array, minimal 1 elemen
+        // ]);
 
         $questions = $exam->questions()->with('options')->get();
         $score = 0;
 
-        foreach ($request->answers as $questionId => $optionId) {
-            $question = $questions->firstWhere('id', $questionId);
-            $selectedOption = $question->options->firstWhere('id', $optionId);
-            $isCorrect = $selectedOption && $selectedOption->is_correct;
+        foreach ($questions as $question) {
+            $userAnswerIds = (array) ($request->answers[$question->id] ?? []); // Pastikan selalu array
+            $correctOptionIds = $question->options->where('is_correct', true)->pluck('id')->toArray();
 
+            // Cek apakah semua jawaban benar dan tidak ada jawaban salah
+            $isFullyCorrect = empty(array_diff($correctOptionIds, $userAnswerIds)) && empty(array_diff($userAnswerIds, $correctOptionIds));
+
+            // Simpan hasil untuk setiap soal
             ExamResult::create([
                 'exam_id' => $exam->id,
                 'user_id' => Auth::id(),
-                'question_id' => $questionId,
-                'option_id' => $optionId,
-                'is_correct' => $isCorrect,
+                'question_id' => $question->id,
+                'option_id' => json_encode($userAnswerIds), // Simpan sebagai JSON
+                'is_correct' => $isFullyCorrect,
                 'completed_at' => $currentTime,
             ]);
 
-            if ($isCorrect) {
-                $score++;
+            if ($isFullyCorrect) {
+                $score += 100 / $questions->count(); // Skor per soal (total 100 poin)
             }
         }
 
@@ -233,11 +236,12 @@ class ExamController extends Controller
         session()->forget('exam_answers_' . $exam->id);
 
         $totalQuestions = $questions->count();
-        $percentage = ($score / $totalQuestions) * 100;
+        $percentage = ($score / 100) * 100; // Normalisasi ke persen
 
-        return redirect()->route('dashboard')->with('success', "Ujian selesai! Skor Anda: {$score}/{$totalQuestions} ({$percentage}%)");
+        return redirect()->route('dashboard')->with('success', "Ujian selesai! Skor Anda: {$score}/100 ({$percentage}%)");
     }
 
+    
     public function results(Request $request)
     {
         $institutions = Institution::all();
@@ -246,7 +250,7 @@ class ExamController extends Controller
         $examId = $request->input('exam_id');
         $search = $request->input('search');
 
-        $query = ExamResult::with(['exam', 'user', 'question', 'option'])
+        $query = ExamResult::with(['exam', 'user', 'question'])
             ->select('exam_id', 'user_id')
             ->groupBy('exam_id', 'user_id');
 
@@ -294,9 +298,18 @@ class ExamController extends Controller
         return view('exams.results', compact('results', 'institutions', 'exams'));
     }
 
+    public function reset(Exam $exam, User $user)
+    {
+        // dd(1);
+        ExamResult::where('exam_id', $exam->id)
+            ->where('user_id', $user->id)
+            ->delete();
+        return redirect()->route('exams.results')->with('success', 'Hasil ujian berhasil direset.');
+    }
+
     public function resultDetail(Exam $exam, User $user)
     {
-        $results = ExamResult::with(['question', 'option'])
+        $results = ExamResult::with(['question'])
             ->where('exam_id', $exam->id)
             ->where('user_id', $user->id)
             ->get();
